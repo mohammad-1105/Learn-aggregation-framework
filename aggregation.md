@@ -154,11 +154,11 @@ averageAge: 29.851926977687626;
 9. List all the unique eye colors present in the collection
 
 ```javascript
-  [
+[
   {
     $group: {
       _id: "$eyeColor",
     },
   },
-]
+];
 ```
