@@ -162,3 +162,183 @@ averageAge: 29.851926977687626;
   },
 ];
 ```
+
+10. What is the average number of tags per user ?
+
+`Example 1`
+
+```javascript
+[
+  // 1st stage , $addFields add new field in existing doc
+  {
+    $addFields: {
+      numberOfTags: { $size: "$tags" }, // $size count the number of element in array
+    },
+  },
+  {
+    $group: {
+      _id: null,
+      averageNumberOfTags: {
+        $avg: "$numberOfTags",
+      },
+    },
+  },
+];
+```
+
+`Example 2`
+
+```javascript
+[
+  {
+    $unwind: "$tags",
+  },
+  {
+    $group: {
+      _id: "$_id",
+      numberOfTags: { $sum: 1 },
+    },
+  },
+  {
+    $group: {
+      _id: null,
+      averageNumberOfTags: {
+        $avg: "$numberOfTags",
+      },
+    },
+  },
+];
+```
+
+11. How many users have 'enim' as one of their tags ?
+
+```javascript
+[
+  {
+    $match: {
+      tags: "enim",
+    },
+  },
+  {
+    $count: "numberOfUsersWithEnimTags",
+  },
+];
+```
+
+12. What are the names and the age of users who are inactive and have 'velit' as a tag ?
+
+```javascript
+[
+  {
+    $match: {
+      isActive: false,
+      tags: "velit",
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      age: 1,
+    },
+  },
+];
+```
+
+13. How many users have a phone number starting with '+1 (940)' ?
+
+```javascript
+[
+  {
+    $match: {
+      "company.phone": /^\+1 \(940\)/,
+    },
+  },
+  {
+    $count: "usersWithSpecialPhoneNumber",
+  },
+];
+```
+
+14. List 5 users registered recently
+
+```javascript
+[
+  {
+    $sort: {
+      registered: -1,
+    },
+  },
+  {
+    $limit: 5,
+  },
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      registered: 1,
+      age: 1,
+    },
+  },
+];
+```
+
+15. Categorize users by their favorite Fruits.
+
+```javascript
+[
+  {
+    $group: {
+      _id: "$favoriteFruit",
+      userNames: { $push: "$name" }, // push creates an array and accumulate the required fields
+    },
+  },
+];
+```
+
+16. How many users have 'ad' tag as the second tag in thier list of tags ?
+
+```javascript
+[
+  {
+    $match: {
+      "tags.1": "ad", // "tags.1" means to check in the 2nd element of tags array
+    },
+  },
+  {
+    $count: "usersHavingAdAsASecondTag",
+  },
+];
+```
+
+17. Find users who have both 'enim' and 'id' as thier tags.
+
+```javascript
+[
+  {
+    $match: {
+      tags: {
+        $all: ["enim", "id"], // $all is a shortcut specifically for checking if an array contains all the listed values.
+      },
+    },
+  },
+];
+```
+
+18. List all the companies located in the "USA" with thier corresponding users count.
+
+```javascript
+[
+  {
+    $match: {
+      "company.location.country": "USA",
+    },
+  },
+  {
+    $group: {
+      _id: "$company.title",
+      count: { $sum: 1 },
+    },
+  },
+];
+```
